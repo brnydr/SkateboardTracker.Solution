@@ -11,6 +11,7 @@ public class Session
 
   public DateTime Date {get; set;}
 
+  
   public List<TrickSession> JoinEntities {get; set;}
 
 }
