@@ -29,34 +29,47 @@ namespace SkateboardApi.Controllers
       return await query.ToListAsync();
     }
 
-[HttpPost("addTrick")]
-public async Task<IActionResult> AddingTricksToSession([FromQuery] int sessionId, [FromQuery] int trickId)
-{
-    // Validation: Check if the student and course exist
-    Session session = await _db.Sessions.FindAsync(sessionId);
-    Trick trick = await _db.Tricks.FindAsync(trickId);
-
-    if (trick == null || session == null)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Session>> GetSession(int id)
     {
-        return NotFound("No tricks found.");
+      Session session = await _db.Sessions.FindAsync(id);
+
+      if (session == null)
+      {
+        return NotFound();
+      }
+
+      return session;
     }
 
-    // Create the StudentCourse join entity
-    TrickSession JoinEntity = new TrickSession
+
+
+    [HttpPost("addTrick")]
+    public async Task<IActionResult> AddingTricksToSession([FromQuery] int sessionId, [FromQuery] int trickId)
     {
-        SessionId = sessionId,
-        TrickId = trickId
-    };
+        // Validation: Check if the student and course exist
+        Session session = await _db.Sessions.FindAsync(sessionId);
+        Trick trick = await _db.Tricks.FindAsync(trickId);
 
-    // Add the enrollment to the database
-    _db.TrickSessions.Add(JoinEntity);
+        if (trick == null || session == null)
+        {
+            return NotFound("No tricks found.");
+        }
 
-    // Save changes to persist the enrollment
-    await _db.SaveChangesAsync();
+        // Create the StudentCourse join entity
+        TrickSession JoinEntity = new TrickSession
+        {
+            SessionId = sessionId,
+            TrickId = trickId
+        };
 
-    return Ok("Trick added.");
-}
+        // Add the enrollment to the database
+        _db.TrickSessions.Add(JoinEntity);
 
+        // Save changes to persist the enrollment
+        await _db.SaveChangesAsync();
+
+        return Ok("Trick added.");
+    }
   }
-
 }
