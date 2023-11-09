@@ -19,21 +19,6 @@ namespace SkateboardTracker.Migrations
                 .HasAnnotation("ProductVersion", "6.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("SessionTrick", b =>
-                {
-                    b.Property<int>("SessionsSessionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TricksTrickId")
-                        .HasColumnType("int");
-
-                    b.HasKey("SessionsSessionId", "TricksTrickId");
-
-                    b.HasIndex("TricksTrickId");
-
-                    b.ToTable("SessionTrick");
-                });
-
             modelBuilder.Entity("SkateboardApi.Models.Session", b =>
                 {
                     b.Property<int>("SessionId")
@@ -85,7 +70,7 @@ namespace SkateboardTracker.Migrations
                     b.Property<string>("Obstacle")
                         .HasColumnType("longtext");
 
-                    b.Property<bool?>("OnLock")
+                    b.Property<bool>("OnLock")
                         .HasColumnType("tinyint(1)");
 
                     b.HasKey("TrickId");
@@ -117,7 +102,8 @@ namespace SkateboardTracker.Migrations
                             Description = "backside pop shuvit heelflip",
                             Name = "inward heel",
                             Notes = "safe",
-                            Obstacle = "grass"
+                            Obstacle = "grass",
+                            OnLock = false
                         });
                 });
 
@@ -139,34 +125,19 @@ namespace SkateboardTracker.Migrations
 
                     b.HasIndex("TrickId");
 
-                    b.ToTable("TrickSessions");
-                });
-
-            modelBuilder.Entity("SessionTrick", b =>
-                {
-                    b.HasOne("SkateboardApi.Models.Session", null)
-                        .WithMany()
-                        .HasForeignKey("SessionsSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SkateboardApi.Models.Trick", null)
-                        .WithMany()
-                        .HasForeignKey("TricksTrickId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("JoinEntities");
                 });
 
             modelBuilder.Entity("SkateboardApi.Models.TrickSession", b =>
                 {
                     b.HasOne("SkateboardApi.Models.Session", "Session")
-                        .WithMany()
+                        .WithMany("JoinEntities")
                         .HasForeignKey("SessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SkateboardApi.Models.Trick", "Trick")
-                        .WithMany()
+                        .WithMany("JoinEntities")
                         .HasForeignKey("TrickId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -174,6 +145,16 @@ namespace SkateboardTracker.Migrations
                     b.Navigation("Session");
 
                     b.Navigation("Trick");
+                });
+
+            modelBuilder.Entity("SkateboardApi.Models.Session", b =>
+                {
+                    b.Navigation("JoinEntities");
+                });
+
+            modelBuilder.Entity("SkateboardApi.Models.Trick", b =>
+                {
+                    b.Navigation("JoinEntities");
                 });
 #pragma warning restore 612, 618
         }

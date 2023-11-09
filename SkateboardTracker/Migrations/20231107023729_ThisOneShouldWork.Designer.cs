@@ -11,8 +11,8 @@ using SkateboardApi.Models;
 namespace SkateboardTracker.Migrations
 {
     [DbContext(typeof(SkateboardApiContext))]
-    [Migration("20231105224316_AddSessionEntity")]
-    partial class AddSessionEntity
+    [Migration("20231107023729_ThisOneShouldWork")]
+    partial class ThisOneShouldWork
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,7 +36,21 @@ namespace SkateboardTracker.Migrations
 
                     b.HasKey("SessionId");
 
-                    b.ToTable("Session");
+                    b.ToTable("Sessions");
+
+                    b.HasData(
+                        new
+                        {
+                            SessionId = 1,
+                            Date = new DateTime(2023, 11, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Location = "Ed Benedict Skatepark"
+                        },
+                        new
+                        {
+                            SessionId = 2,
+                            Date = new DateTime(2023, 10, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Location = "TRON"
+                        });
                 });
 
             modelBuilder.Entity("SkateboardApi.Models.Trick", b =>
@@ -58,7 +72,7 @@ namespace SkateboardTracker.Migrations
                     b.Property<string>("Obstacle")
                         .HasColumnType("longtext");
 
-                    b.Property<bool?>("OnLock")
+                    b.Property<bool>("OnLock")
                         .HasColumnType("tinyint(1)");
 
                     b.HasKey("TrickId");
@@ -90,7 +104,8 @@ namespace SkateboardTracker.Migrations
                             Description = "backside pop shuvit heelflip",
                             Name = "inward heel",
                             Notes = "safe",
-                            Obstacle = "grass"
+                            Obstacle = "grass",
+                            OnLock = false
                         });
                 });
 
@@ -112,7 +127,7 @@ namespace SkateboardTracker.Migrations
 
                     b.HasIndex("TrickId");
 
-                    b.ToTable("TrickSessions");
+                    b.ToTable("JoinEntities");
                 });
 
             modelBuilder.Entity("SkateboardApi.Models.TrickSession", b =>

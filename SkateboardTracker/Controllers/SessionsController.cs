@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
-using SkateboardApi.Models;
+using SkateboardApi.Models; 
+using Microsoft.AspNetCore.Authorization;
 
 namespace SkateboardApi.Controllers
 {
+  [Authorize]
   [Route("api/[controller]")]
   [ApiController]
   public class SessionsController : ControllerBase
@@ -17,29 +20,39 @@ namespace SkateboardApi.Controllers
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Session>>> Get(string location)
     {
+
       IQueryable<Session> query = _db.Sessions.AsQueryable();
-
-      if (location != null)
+      if ( location == null)
       {
-        query = query.Where(entry => entry.Location == location);
-                    
-     
-      }
+       return await query.Include(entry=>entry.JoinEntities)
+                          .ThenInclude(join=>join.Trick)
+                          .ToListAsync();
+      } 
+      else 
+      {
+        return await query.Where(entry=>entry.Location ==location)
+                          .Include(entry => entry.JoinEntities)
+                          .ThenInclude(join=>join.Trick).ToListAsync();
 
-      return await query.ToListAsync();
+        
+      }
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Session>> GetSession(int id)
-    {
-      Session session = await _db.Sessions.FindAsync(id);
+    { 
+      
+      IQueryable<Session> session = _db.Sessions.AsQueryable().Where(entry => entry.SessionId == id);
 
-      if (session == null)
+
+    if (session == null)
       {
         return NotFound();
       }
-
-      return session;
+      else 
+      {
+        return await session.Include(entry => entry.JoinEntities).ThenInclude(join=>join.Trick).FirstOrDefaultAsync();
+      }
     }
 
 
@@ -64,7 +77,7 @@ namespace SkateboardApi.Controllers
         };
 
         // Add the enrollment to the database
-        _db.TrickSessions.Add(JoinEntity);
+        _db.JoinEntities.Add(JoinEntity);
 
         // Save changes to persist the enrollment
         await _db.SaveChangesAsync();
@@ -73,3 +86,4 @@ namespace SkateboardApi.Controllers
     }
   }
 }
+
